@@ -549,7 +549,15 @@ The purpose of the migrate.bash build script is to automate the database migrati
 
 With the migrate.bash script in place and configured as the build command, you can confidently deploy your Django application to Koyeb, knowing that your production database will be properly migrated and ready to use.
 
-### 7.3 GitHub-Based Deployment
+### 7.3 runtime.txt
+
+Make sure to specify the right version of python by creating a runtime.txt file with the following command:
+
+```
+echo "python-3.11.2" > runtime.txt
+```
+
+### 7.4 GitHub-Based Deployment
 
 GitHub-based deployment is a convenient way to deploy your Django application to Koyeb. Follow these steps to deploy using GitHub:
 
@@ -565,7 +573,7 @@ GitHub-based deployment is a convenient way to deploy your Django application to
 
 6. **Access Your Deployed App:** Once the deployment is complete, you can access your Django application by clicking the provided URL ending with `.koyeb.app`.
 
-### 7.4 Docker-Based Deployment
+### 7.5 Docker-Based Deployment
 
 Alternatively, you can deploy your Django application to Koyeb using a pre-built Docker container. Here are the steps for Docker-based deployment:
 
