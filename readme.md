@@ -516,7 +516,7 @@ GitHub-based deployment is a convenient way to deploy your Django application to
 
 3. **Set Up Deployment in Koyeb:** In the Koyeb control panel, create a new app and select GitHub as the deployment option. Choose the repository and branch that contain your application code.
 
-4. **Configure Build and Deployment Settings:** Customize your deployment settings, including the run command (e.g., `gunicorn example_django.wsgi`), and set environment variables as needed.
+4. **Configure Build and Deployment Settings:** Customize your deployment settings, including the run command (e.g., `gunicorn url_project.wsgi`), and set environment variables as needed.
 
 5. **Deploy Your App:** Click the "Deploy" button in the Koyeb control panel. Koyeb will automatically build and deploy your Django application based on changes detected in your GitHub repository.
 
