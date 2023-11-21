@@ -463,6 +463,8 @@ Testing your app locally is a crucial step in the development process, as it all
 
 ## Step 7: Deploying to Koyeb
 
+[Koyeb Django Deployment Documentation](https://www.koyeb.com/docs/deploy/django#push-the-project-to-github)
+
 Now that you have tested your Django application locally and it's working as expected, it's time to deploy it to production using Koyeb. Koyeb offers flexible deployment options, allowing you to choose between two methods: GitHub-based deployment or Docker-based deployment.
 
 ### Step 7.1: Deployment Setup
@@ -506,56 +508,36 @@ This command will create a `requirements.txt` file containing a list of installe
 
 With Gunicorn installed and your requirements.txt file generated, you're ready to proceed with the deployment of your Django application on Koyeb or your chosen hosting platform.
 
-### Step 7.2: Build Script
-
-To ensure that your production database is properly migrated during deployment on Koyeb, you can create a build script named `migrate.bash`. This script will execute the Django management command `python manage.py migrate` when deploying your Django application. Database migrations are essential to synchronize your database schema with the latest changes in your Django models.
-
-#### Creating the `migrate.bash` Script
-
-Follow these steps to create the `migrate.bash` script:
-
-1. **Create a New File:** In your project's root directory, create a new file named `migrate.bash`. You can use your favorite code editor or the command line to create the file.
-
-2. **Edit the Script:** Open the `migrate.bash` file in your code editor and add the following line:
-
-```bash
-#!/bin/bash
-python manage.py migrate
-```
-The `#!/bin/bash` line is known as a shebang and specifies that this is a Bash script.
-
-
-**Save the Script:** Save the changes to the migrate.bash file.
-
-#### Setting the Build Command in Koyeb
-When deploying your Django application to Koyeb, you can specify the migrate.bash script as the build command. This ensures that database migrations are executed as part of the deployment process. Here's how to set the build command:
-
-In the Koyeb control panel, navigate to your app's settings.
-
-In the "Build and deployment settings" section, locate the "Build command" field.
-
-Enter the following command as the build command:
-
-```bash
-bash migrate.bash
-```
-
-This command instructs Koyeb to run the migrate.bash script during the deployment process.
-
-Save the changes to update your app's settings.
-
-#### Purpose of the Build Script
-The purpose of the migrate.bash build script is to automate the database migration process during deployment. When deploying to a production environment, the database configuration may differ from your local development database. By including this script as part of your deployment, you ensure that database schema changes are applied to your production database, keeping it in sync with your Django models.
-
-With the migrate.bash script in place and configured as the build command, you can confidently deploy your Django application to Koyeb, knowing that your production database will be properly migrated and ready to use.
-
-### 7.3 runtime.txt
+### 7.2 runtime.txt
 
 Make sure to specify the right version of python by creating a runtime.txt file with the following command:
 
 ```
 echo "python-3.11.2" > runtime.txt
 ```
+
+## Step 7.3: Allowed Hosts Configuration
+
+To ensure the security and functionality of your Django application, you need to specify the allowed hosts that are permitted to access your application. This is achieved by configuring the `ALLOWED_HOSTS` setting in your Django project's `settings.py` file. Additionally, you should set the environment variable for `DJANGO_ALLOWED_HOSTS` during deployment, including your Koyeb URL.
+
+### Updating `settings.py`
+
+1. Open your Django project's `settings.py` file in your code editor.
+
+2. Locate the `ALLOWED_HOSTS` setting in the file. By default, it may be commented out or set to an empty list.
+
+3. Update the `ALLOWED_HOSTS` setting to dynamically read from an environment variable, allowing you to define the allowed hosts during deployment. Add the following code snippet:
+
+```python
+import os
+
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,[::1]").split(",")
+```
+
+This code sets `ALLOWED_HOSTS` to the value of the `DJANGO_ALLOWED_HOSTS` environment variable if it is defined. If the environment variable is not set, it falls back to a default list of allowed hosts.
+
+#### Setting the Environment Variable
+During deployment on Koyeb, it's essential to set the `DJANGO_ALLOWED_HOSTS` environment variable to include your Koyeb URL. The Koyeb URL follows the pattern `<YOUR_APP_NAME>-<YOUR_KOYEB_ORG>.koyeb.app`, where `<YOUR_APP_NAME>` is the name of your app, and `<YOUR_KOYEB_ORG>` is your Koyeb organization name.
 
 ### 7.4 GitHub-Based Deployment
 
@@ -567,30 +549,76 @@ GitHub-based deployment is a convenient way to deploy your Django application to
 
 3. **Set Up Deployment in Koyeb:** In the Koyeb control panel, create a new app and select GitHub as the deployment option. Choose the repository and branch that contain your application code.
 
-4. **Configure Build and Deployment Settings:** Customize your deployment settings, including the run command (e.g., `gunicorn url_project.wsgi`), and set environment variables as needed.
+4. **Configure Build and Deployment Settings:** Customize your deployment settings, including the run command (e.g., `gunicorn url_project.wsgi`),  and set environment variables as needed. The variables that should be set include.
+
+```bash
+# Database URL
+DATABASE_URL=postgres://...
+# Disabling Collect Static since it is just an API
+DISABLE_COLLECTSTATIC=1
+# Django ALLOW_HOSTS
+DJANGO_ALLOWED_HOSTS=<YOUR_APP_NAME>-<YOUR_KOYEB_ORG>.koyeb.app
+```
+
+**NOTE**: Make sure your deployment database has been migrated
 
 5. **Deploy Your App:** Click the "Deploy" button in the Koyeb control panel. Koyeb will automatically build and deploy your Django application based on changes detected in your GitHub repository.
 
 6. **Access Your Deployed App:** Once the deployment is complete, you can access your Django application by clicking the provided URL ending with `.koyeb.app`.
 
-### 7.5 Docker-Based Deployment
+### Step 7.5: Docker-Based Deployment
 
-Alternatively, you can deploy your Django application to Koyeb using a pre-built Docker container. Here are the steps for Docker-based deployment:
+If you prefer Docker-based deployment, you can containerize your Django application and deploy it to Koyeb using a pre-built Docker container. Here's how to do it:
 
-1. **Dockerize Your Django App:** Create a Dockerfile in your project's root directory, defining the Docker image for your Django application. Be sure to include any necessary dependencies and set up the run command.
+#### Dockerizing Your Django App
 
-2. **Build and Push the Docker Image:** Build the Docker image and push it to a public or private container registry, such as Docker Hub or a private repository.
+1. **Create a Dockerfile:** In your project's root directory, create a `Dockerfile` to define the Docker image for your Django application. Below is an example of a `Dockerfile` for a Django app:
 
-3. **Configure Environment Variables:** In Koyeb, configure environment variables, including `DJANGO_ALLOWED_HOSTS` (e.g., `<YOUR_APP_NAME>-<YOUR_KOYEB_ORG>.koyeb.app`).
+```Dockerfile
+# Use an official Python runtime as a parent image
+FROM python:3.11
 
-4. **Deploy from Docker Image:** In the Koyeb control panel, create a new app and select the "Deploy from a Docker Image" option. Provide the URL of your Docker image in the registry.
+# Set up a working directory
+WORKDIR /app
 
-5. **Configure Deployment Settings:** Customize your deployment settings, such as the run command and port.
+# Copy your Django project files into the container
+COPY . /app
 
-6. **Deploy Your App:** Click the "Deploy" button to start the deployment. Koyeb will pull your Docker image and deploy your Django application.
+# Install any dependencies using pip (requirements.txt should be present)
+RUN pip install -r requirements.txt
 
-7. **Access Your Deployed App:** Once the deployment is finished, you can access your Django application using the provided URL ending with `.koyeb.app`.
+# Expose the port your application will run on
+EXPOSE 8000
 
-Choose the deployment method that best suits your needs and infrastructure. GitHub-based deployment simplifies the process if your code is hosted on GitHub, while Docker-based deployment offers more control over your application's environment and dependencies.
+# Define the command to start your Django app
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+```
 
-With your Django application successfully deployed to Koyeb, it's now accessible to users on the internet. You can monitor its performance, scale it as needed, and continue to improve and expand your web application.
+**Build and Push the Docker Image:** Build the Docker image using the docker build command and then push it to a container registry, such as Docker Hub or a private repository. Replace `<your_image_name>` with the desired name for your Docker image and `<your_tag>` with a version tag.
+
+```bash
+# Build the Docker image
+docker build -t <your_image_name>:<your_tag> .
+
+# Push the Docker image to a registry
+docker push <your_image_name>:<your_tag>
+```
+
+#### Configure Environment Variables
+Configure Environment Variables: In the Koyeb control panel, set environment variables required for your Django application. Ensure that you define the DJANGO_ALLOWED_HOSTS variable, which should include your Koyeb URL in the format `<YOUR_APP_NAME>-<YOUR_KOYEB_ORG>.koyeb.app`.
+
+#### Deploy from Docker Image
+Deploy from Docker Image: In the Koyeb control panel, create a new app and choose the "Deploy from a Docker Image" option. Provide the URL of your Docker image in the container registry, including the image name and tag.
+
+#### Configure Deployment Settings
+Configure Deployment Settings: Customize your deployment settings, such as specifying the run command and the port your Django application will listen on.
+
+#### Deploy Your App
+Deploy Your App: Click the "Deploy" button to initiate the deployment process. Koyeb will pull your Docker image from the registry and deploy your Django application.
+
+#### Access Your Deployed App
+Access Your Deployed App: Once the deployment is complete, you can access your Django application using the URL provided by Koyeb, which typically ends with ``.koyeb.app``.
+
+Choose the deployment method that best aligns with your infrastructure and preferences. GitHub-based deployment simplifies the process if your code is hosted on GitHub, while Docker-based deployment offers greater control over your application's environment and dependencies.
+
+With your Django application successfully deployed to Koyeb as a Docker container, it becomes accessible to users on the internet. You can monitor its performance, scale it as needed, and continue enhancing and expanding your web application.
