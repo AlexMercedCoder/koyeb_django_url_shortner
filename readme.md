@@ -506,7 +506,50 @@ This command will create a `requirements.txt` file containing a list of installe
 
 With Gunicorn installed and your requirements.txt file generated, you're ready to proceed with the deployment of your Django application on Koyeb or your chosen hosting platform.
 
-### 7.2 GitHub-Based Deployment
+### Step 7.2: Build Script
+
+To ensure that your production database is properly migrated during deployment on Koyeb, you can create a build script named `migrate.bash`. This script will execute the Django management command `python manage.py migrate` when deploying your Django application. Database migrations are essential to synchronize your database schema with the latest changes in your Django models.
+
+#### Creating the `migrate.bash` Script
+
+Follow these steps to create the `migrate.bash` script:
+
+1. **Create a New File:** In your project's root directory, create a new file named `migrate.bash`. You can use your favorite code editor or the command line to create the file.
+
+2. **Edit the Script:** Open the `migrate.bash` file in your code editor and add the following line:
+
+```bash
+#!/bin/bash
+python manage.py migrate
+```
+The `#!/bin/bash` line is known as a shebang and specifies that this is a Bash script.
+
+
+**Save the Script:** Save the changes to the migrate.bash file.
+
+#### Setting the Build Command in Koyeb
+When deploying your Django application to Koyeb, you can specify the migrate.bash script as the build command. This ensures that database migrations are executed as part of the deployment process. Here's how to set the build command:
+
+In the Koyeb control panel, navigate to your app's settings.
+
+In the "Build and deployment settings" section, locate the "Build command" field.
+
+Enter the following command as the build command:
+
+```bash
+bash migrate.bash
+```
+
+This command instructs Koyeb to run the migrate.bash script during the deployment process.
+
+Save the changes to update your app's settings.
+
+#### Purpose of the Build Script
+The purpose of the migrate.bash build script is to automate the database migration process during deployment. When deploying to a production environment, the database configuration may differ from your local development database. By including this script as part of your deployment, you ensure that database schema changes are applied to your production database, keeping it in sync with your Django models.
+
+With the migrate.bash script in place and configured as the build command, you can confidently deploy your Django application to Koyeb, knowing that your production database will be properly migrated and ready to use.
+
+### 7.3 GitHub-Based Deployment
 
 GitHub-based deployment is a convenient way to deploy your Django application to Koyeb. Follow these steps to deploy using GitHub:
 
@@ -522,7 +565,7 @@ GitHub-based deployment is a convenient way to deploy your Django application to
 
 6. **Access Your Deployed App:** Once the deployment is complete, you can access your Django application by clicking the provided URL ending with `.koyeb.app`.
 
-### 7.2 Docker-Based Deployment
+### 7.4 Docker-Based Deployment
 
 Alternatively, you can deploy your Django application to Koyeb using a pre-built Docker container. Here are the steps for Docker-based deployment:
 
