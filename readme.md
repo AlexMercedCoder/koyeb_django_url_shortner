@@ -516,7 +516,7 @@ Make sure to specify the right version of python by creating a runtime.txt file 
 echo "python-3.11.2" > runtime.txt
 ```
 
-## Step 7.3: Allowed Hosts Configuration
+### Step 7.3: Allowed Hosts Configuration
 
 To ensure the security and functionality of your Django application, you need to specify the allowed hosts that are permitted to access your application. This is achieved by configuring the `ALLOWED_HOSTS` setting in your Django project's `settings.py` file. Additionally, you should set the environment variable for `DJANGO_ALLOWED_HOSTS` during deployment, including your Koyeb URL.
 
