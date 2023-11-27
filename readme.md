@@ -84,6 +84,30 @@ pip install djangorestframework
 
 These commands will install the latest versions of Django and Django REST Framework within your virtual environment.
 
+### 1.4 Create a new Django Project
+
+Now that we have our virtual environment set up and Django installed, we can create a new Django project. In this example, we'll name our project "urlshortener," but you can choose a different name if you prefer.
+
+Open your terminal and make sure your virtual environment is still activated. Then, run the following command to create a new Django project:
+
+```bash
+django-admin startproject urlshortener
+``` 
+This command will create a new directory named "urlshortener" in your project directory, and it will contain the initial project structure. Here's what the resulting folder structure will look like:
+
+```bash
+your_project_directory/
+├── urlshortener/           # Django project folder
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py         # Project settings file
+│   ├── urls.py             # Project-level URL routing
+│   └── wsgi.py
+└── manage.py               # Django's command-line management utility
+```
+
+Your "urlshortener" Django project is now set up and ready for development.
+
 ## Step 2: Configuring DRF and Setting Up the Project
 
 Now that we have our local Django project environment set up, the next step is to configure Django REST Framework (DRF) and configure our project to use it. DRF is a powerful toolkit for building Web APIs on top of Django, and it will be essential for creating our URL shortener application.
@@ -204,7 +228,7 @@ We'll start by defining the `URL` model, which represents the URLs we want to sh
 - `url` (string): The original URL that users want to shorten.
 - `visits` (integer): A counter to keep track of the number of times the shortened URL has been visited.
 
-In your Django project, create a new app or use an existing one.
+In your Django project, create a new app or use an existing one. (Reminder: Django "apps" are subsections of functionality in a Django "project")
 
 Creating a New App:
 ```py
@@ -243,7 +267,7 @@ In this model, we use a CharField for the hash field, an URLField for the url fi
 ### 4.2 URL Serializer
 Next, let's create a serializer for the URL model. The serializer defines how the URL model should be serialized into JSON format and vice versa. This is essential for interacting with our API.
 
-In your Django app, create a file named `serializers.py`` if it doesn't already exist, and define the URLSerializer:
+In your Django app, create a file named `serializers.py` if it doesn't already exist, and define the URLSerializer:
 
 ```py
 from rest_framework import serializers
