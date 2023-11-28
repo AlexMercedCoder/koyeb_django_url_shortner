@@ -420,6 +420,8 @@ urlpatterns = [
 ### 5.4 Connecting the URLs
 Finally, don't forget to include your app's URLs in your project's urls.py file. In the project's urls.py, include your app's URLs using the include function:
 
+**Note:** This is the urls.py in your project folder not the urls.py in the app folder. This code connects our app level urls to our project level urls.
+
 ```py
 from django.contrib import admin
 from django.urls import path, include
