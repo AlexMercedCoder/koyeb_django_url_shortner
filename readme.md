@@ -420,7 +420,7 @@ urlpatterns = [
 ### 5.4 Connecting the URLs
 Finally, don't forget to include your app's URLs in your project's urls.py file. In the project's urls.py, include your app's URLs using the include function:
 
-**Note:** This is the urls.py in your project folder not the urls.py in the app folder. This code connects our app level urls to our project level urls.
+**Note:** This is the urls.py in your project folder (urlshortener) not the urls.py in the app folder (url). This code connects our app level urls to our project level urls.
 
 ```py
 from django.contrib import admin
@@ -575,7 +575,7 @@ GitHub-based deployment is a convenient way to deploy your Django application to
 
 3. **Set Up Deployment in Koyeb:** In the Koyeb control panel, create a new app and select GitHub as the deployment option. Choose the repository and branch that contain your application code.
 
-4. **Configure Build and Deployment Settings:** Customize your deployment settings, including the run command (e.g., `gunicorn url_project.wsgi`),  and set environment variables as needed. The variables that should be set include.
+4. **Configure Build and Deployment Settings:** Customize your deployment settings, including the run command (e.g., `gunicorn urlshortener.wsgi`),  and set environment variables as needed. The variables that should be set include.
 
 ```bash
 # Database URL
