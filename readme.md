@@ -125,6 +125,8 @@ Regardless of whether you choose a local or cloud-based Postgres database, you'l
 pip install psycopg2
 ```
 
+_Note: This library compiles from source and may run into issues if your computer doesn't have the necessary C/C++ libraries (usually retrieved by installing postgres locally). If you run into an issue installing `psycopg2` then instead install `psycopg2-binary`_ 
+
 This library enables Django to communicate with the PostgreSQL database.
 
 ### 3.3 Configuring the Database
@@ -417,7 +419,184 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-## Step 6: Testing the App Locally
+### Step 5.6 (Optional) - Add a mini UI
+
+While we have no build a functioning API that can be used on its own or used as part of frontend APPs built in frameworks like React, Svelte, Solid, Qwik, Angular or Vue, here I'll give some direction on adding a small UI using Django's built-in templating features.
+
+#### Step 5.6.1 Creating the View Function
+
+Let's add a view function to the `url/views.py` file that'll pull our urls from the database and send them to a template which will also have a form to generate our urls.
+
+```py
+def simple_ui(request):
+    ## Get all urls
+    urls = URL.objects.all()
+    ## Render template
+    return render(request, "index.html", {"urls": urls})
+```
+
+#### Step 5.6.2 Creating the Template
+
+Create a `url/templates` folder and in that folder create an `index.html` with the following for our UI.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My URL Shortener</title>
+  </head>
+  <body>
+    <header><h1>My URL Shortener</h1></header>
+    <main>
+      <!-- FORM FOR SHORTENING URLS -->
+      <form>
+        <input type="text" name="url" placeholder="URL to Shorten" />
+        <button>Shorten URL</button>
+      </form>
+      <div class="error"></div>
+      <!-- DISPLAY OF EXISTING URLS -->
+      <div class="urls">
+        <!-- JINJA USED TO LOOP OVER URLS SENT TO TEMPLATE BY VIEW FUNCTION -->
+        {% for url in urls %}
+        <div class="url">
+          <a href="/url/{{url.hash}}"><div class="url-item">Hash: {{url.hash}}</div></a>
+          <div class="url-item">Points To: {{url.url}}</div>
+          <div class="url-item">Uses: {{url.visits}}</div>
+        </div>
+        {% endfor %}
+        
+      </div>
+    </main>
+
+    <!-- JAVASCRIPT FOR FORM FUNCTIONALITY -->
+    <script>
+      // grab form node from DOM
+      const form = document.querySelector("form");
+      // add submit event on form
+      form.addEventListener("submit", (event) => {
+        // prevent immediate refresh
+        event.preventDefault();
+        // generate form data object
+        const formData = new FormData(form);
+        // generate object to send to API endpoint
+        const requestBody = { url: formData.get("url") };
+        // make post request to API, don't forget the trailing slash!
+        fetch("/url/", {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        })
+          // if all goes well
+          .then((response) => {
+            if (response.status >= 400) {
+              return response.text();
+            }
+            // refresh page
+            location.reload();
+          })
+          // if something goes wrong
+          .then((error) => {
+            // put error text in error div
+            const errorDiv = document.querySelector(".error")
+
+            errorDiv.innerHTML = error
+
+          });
+      });
+    </script>
+
+    <!-- CSS STYLING FOR AESTHETICS -->
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: beige;
+            height: 100dvh;
+        }
+
+        header h1 {
+            text-align: center;
+            background-color: brown;
+            color: white;
+            padding: 10px;
+        }
+
+        main {
+            background-color: beige;
+
+            & a {
+                text-decoration: none;
+            }
+
+            & a .url-item:hover {
+                color:aquamarine;
+            }
+
+            .error {
+                border: 5px solid red;
+                margin: 3px;
+            }
+
+            .urls {
+                border: 5px solid green;
+                margin: 3px;
+            }
+
+            .url {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+
+                .url-item {
+                    background-color: brown;
+                    width: 32%;
+                    min-width: 100px;
+                    margin: 5px;
+                    text-align: center;
+                    padding: 3px;
+                    color: white;
+
+
+                }
+            }
+        }
+    </style>
+  </body>
+</html>
+```
+
+## Step 5.6.3 Attaching a URL to the UI
+
+In the main project `urls.py` let's import our view and attach it the main page url `''`.
+
+```py
+from django.contrib import admin
+from django.urls import path, include
+from url.views import simple_ui
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('url.urls')),  # Include your app's URLs here
+    path('', simple_ui)
+]
+```
+
+This UI will:
+
+- Allow you to create new shortened urls
+- Display existing URLs with details
+- Display errors if any error occurs in creating a URL like an integrity error if shortening the same URL multiple times.
+
+## Step 6: Testing the APP Locally
 
 Before deploying your URL shortener to production, it's essential to thoroughly test it locally to ensure that all the endpoints and functionality work as expected. In this step, we'll cover how to test your app on your local development environment.
 
@@ -430,6 +609,8 @@ python manage.py runserver
 ```
 
 This command will start the development server (`http://localhost:8000`), and you should see output indicating that the server is running.
+
+(If you built the optional UI, it will be visible at `http://localhost:8000`)
 
 ### 6.2 Accessing the API Endpoints
 With the development server running, you can now access the API endpoints you've created:
