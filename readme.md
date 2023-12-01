@@ -478,6 +478,7 @@ Create a `url/templates` folder and in that folder create an `index.html` with t
     <main>
       <!-- FORM FOR SHORTENING URLS -->
       <form>
+        <p>NOTE: Each unique URL can be shortened once.</p>
         <input type="text" name="url" placeholder="URL to Shorten" />
         <button>Shorten URL</button>
       </form>
@@ -487,12 +488,14 @@ Create a `url/templates` folder and in that folder create an `index.html` with t
         <!-- JINJA USED TO LOOP OVER URLS SENT TO TEMPLATE BY VIEW FUNCTION -->
         {% for url in urls %}
         <div class="url">
-          <a href="/url/{{url.hash}}"><div class="url-item">Hash: {{url.hash}}</div></a>
+          <a href="/url/{{url.hash}}"
+            ><div class="url-item">Hash: {{url.hash}}</div></a
+          >
+          <div class="url-item">Short URL: /url/{{url.hash}}</div>
           <div class="url-item">Points To: {{url.url}}</div>
           <div class="url-item">Uses: {{url.visits}}</div>
         </div>
         {% endfor %}
-        
       </div>
     </main>
 
@@ -518,6 +521,7 @@ Create a `url/templates` folder and in that folder create an `index.html` with t
         })
           // if all goes well
           .then((response) => {
+            console.log(response);
             if (response.status >= 400) {
               return response.text();
             }
@@ -526,75 +530,75 @@ Create a `url/templates` folder and in that folder create an `index.html` with t
           })
           // if something goes wrong
           .then((error) => {
-            // put error text in error div
-            const errorDiv = document.querySelector(".error")
+            // get error string from html error from django
+            const regex = /<pre[^>]*>(.*?)<\/pre>/s;
+            const match = regex.exec(error);
 
-            errorDiv.innerHTML = error
-
+            if (match) {
+              const innerText = match[1];
+              alert(innerText)
+            } else {
+              alert("No Error Details");
+            }
           });
       });
     </script>
 
     <!-- CSS STYLING FOR AESTHETICS -->
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+          sans-serif;
+      }
+
+      body {
+        background-color: beige;
+        height: 100dvh;
+      }
+
+      header h1 {
+        text-align: center;
+        background-color: brown;
+        color: white;
+        padding: 10px;
+      }
+
+      main {
+        background-color: beige;
+
+        & a {
+          text-decoration: none;
         }
 
-        body {
-            background-color: beige;
-            height: 100dvh;
+        & a .url-item:hover {
+          color: aquamarine;
         }
 
-        header h1 {
-            text-align: center;
+        .urls {
+          border: 5px solid green;
+          margin: 3px;
+        }
+
+        .url {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+
+          .url-item {
             background-color: brown;
+            width: 23%;
+            min-width: 100px;
+            margin: 5px;
+            text-align: center;
+            padding: 3px;
             color: white;
-            padding: 10px;
+          }
         }
-
-        main {
-            background-color: beige;
-
-            & a {
-                text-decoration: none;
-            }
-
-            & a .url-item:hover {
-                color:aquamarine;
-            }
-
-            .error {
-                border: 5px solid red;
-                margin: 3px;
-            }
-
-            .urls {
-                border: 5px solid green;
-                margin: 3px;
-            }
-
-            .url {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: space-between;
-
-                .url-item {
-                    background-color: brown;
-                    width: 32%;
-                    min-width: 100px;
-                    margin: 5px;
-                    text-align: center;
-                    padding: 3px;
-                    color: white;
-
-
-                }
-            }
-        }
+      }
     </style>
   </body>
 </html>
