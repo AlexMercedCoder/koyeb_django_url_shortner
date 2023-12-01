@@ -719,8 +719,10 @@ With Gunicorn installed and your requirements.txt file generated, you're ready t
 
 Make sure to specify the right version of python by creating a runtime.txt file with the following command:
 
+For which versions work with the the buildpack refer to [this](https://devcenter.heroku.com/articles/python-support)
+
 ```
-echo "python-3.11.2" > runtime.txt
+echo "python-3.11.6" > runtime.txt
 ```
 
 ### Step 7.3: Allowed Hosts Configuration
