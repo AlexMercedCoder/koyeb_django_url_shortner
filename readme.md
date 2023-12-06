@@ -7,6 +7,8 @@ A URL shortener is a service that replaces long and hard-to-remember URLs with s
 
 In this tutorial, we will explore how to create a URL shortener using Django REST and Postgres, and deploy it to production using Koyeb. By the end of this guide, you will have the knowledge and skills to develop your own URL shortening service, similar to popular platforms like [bit.ly](http://bit.ly/) or [tinyurl.com](http://tinyurl.com/), and take it live using Koyeb's platform.
 
+Not only will you be able to use the urls our application will generate to replace links to a desired URL but also to track how many times a resources has been accessed. Our URL shortner will enable tracking access which can be a useful tool for assessing the performance of marketing campaigns and initiatives.
+
 We will delve into the inner workings of a URL shortener, leverage the capabilities of Django, harness the power of Django REST framework, and utilize the reliability of the Postgres database. Whether you're a Django enthusiast or just looking to build a practical web service, this tutorial will provide you with the necessary steps and insights to get you started.
 
 Let's embark on this journey to create a powerful and scalable URL shortener with Django, Django REST framework, and Postgres, and witness it in action as we deploy it to production with Koyeb.
