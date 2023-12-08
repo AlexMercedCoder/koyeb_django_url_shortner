@@ -530,6 +530,10 @@ Create a `url/templates` folder and in that folder create an `index.html` with t
           })
           // if something goes wrong
           .then((error) => {
+            //if no error kill function
+            if(!error){
+              return 1;
+            }
             // get error string from html error from django
             const regex = /<pre[^>]*>(.*?)<\/pre>/s;
             const match = regex.exec(error);
